@@ -125,52 +125,13 @@ def lidar_pts_to_img(orig_img, pts_velo, img_width, img_height):
     #                                 )
 
 def visualize(pcd_path, calib_path=None, gt_label_path=None, pred_label_path=None):
- # Initialize
-    vis = open3d.visualization.Visualizer()
-    vis.create_window()
-    vis.get_render_option().point_size = 1.0 # smaller points
-    vis.get_render_option().background_color = np.zeros(3) # black background
-    
-    # Add coordinate axis, x forward, y left, z upward 
-    axis_pcd = open3d.geometry.TriangleMesh.create_coordinate_frame(size=1.0, origin=[0,0,0])
-    vis.add_geometry(axis_pcd)
 
     # Plot pcd from bin
     points = np.fromfile(pcd_bin_path, dtype=np.float32).reshape(-1,4)
-    pcd = open3d.geometry.PointCloud()
-    pcd.points = open3d.utility.Vector3dVector(points[:, :3].astype(np.float64))
-    pcd.colors = open3d.utility.Vector3dVector(np.ones((points.shape[0], 3))) # white points
-    vis.add_geometry(pcd)
 
-    # draw_box(vis, [32.04, 3.59, 0.256, 0.090, 0.839, 0.805, 0], isGT=False)
-
-    # Ground Truth
-
-    # Option 1: Plot ground truth boxes from KITTI
-    # with open(gt_label_path) as file:
-    #     for line in file:
-    #         kitti = line.strip().split(" ")
-    #         draw_box_kitti(vis, kitti, calib_path, isGT=True)
-
-    # Option 2: Plot ground truth boxes from SUSTechPoints label json
- 
-    # Inferences
-
-    # Option 1: Plot inference boxes from KITTI
-    # with open(pred_label_path) as file:
-    #     for line in file:
-    #         kitti = line.strip().split(" ")
-    #         draw_box_kitti(vis, kitti, calib_path, isGT=False)
-
-    # Option 2: Plot inference boxes from OpenPCDet
-    # with open(pred_label_path, "rb") as file:
-    #     pred_dicts = CPU_Unpickler(file).load()
-    #     for i, pred in enumerate(pred_dicts[0]["pred_boxes"]):
-    #         if pred_dicts[0]["pred_scores"][i] >= score_thresh:
-    #             draw_box(vis, pred, isGT=False)
-
-    vis.run()
-    vis.destroy_window()
+    img = cv2.cvtColor(cv2.imread(img_path)[:,:,:3],cv2.COLOR_BGR2RGB)
+    h,w,_ = img.shape
+    lidar_pts_to_img(img, points, w, h)
 
 def rotate_pcd(pcd):
     # Save points into np array
