@@ -13,8 +13,8 @@ import math
 data_root_path = "/Users/daniel/Documents/code/python/AutoDriveTasks/data/dataset_Mcity_1_Jun_8_23_KITTI_no_labels/"
 
 pcd_src_path = ""
-pcd_bin_path = data_root_path + "velodyne/000094.bin"
-img_path = data_root_path + "image_2/000094.jpg"
+pcd_bin_path = data_root_path + "velodyne/000074.bin"
+img_path = data_root_path + "image_2/000074.jpg"
 calib_path = data_root_path + "calib.txt"
 calib_json_path = data_root_path + "calib.json"
 # gt_label_path = '/home/zhur123/AutoDrive/SUSTechPOINTS/data/dataset_Mar11_1_post/label/000015.json'
@@ -95,12 +95,12 @@ def lidar_pts_to_img(orig_img, pts_velo, img_width, img_height):
             if x >= 0 and y >= 0 and x <= img_width and y <= img_height:
                 xs.append(int(x))
                 ys.append(int(y))
-                value.append(dist[i])
+                value.append(dist[i] * 10)
           
 
     # show the original image with the lidar points
     plt.imshow(orig_img)
-    plt.scatter(xs, ys, s=1, c=value, cmap='autumn')
+    plt.scatter(xs, ys, s=1, c=value, cmap='autumn', alpha=0.5)
     plt.show()
     
     # # Image plane 2D to Camera frame 3D            
