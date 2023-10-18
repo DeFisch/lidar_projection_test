@@ -11,10 +11,10 @@ import re
 import math
 
 data_root_path = "/Users/daniel/Documents/code/python/AutoDriveTasks/data/dataset_Mcity_1_Jun_8_23_KITTI_no_labels/"
-
+IMG_IDX = 95
 pcd_src_path = ""
-pcd_bin_path = data_root_path + "velodyne/000074.bin"
-img_path = data_root_path + "image_2/000074.jpg"
+pcd_bin_path = data_root_path + f"velodyne/0000{IMG_IDX}.bin"
+img_path = data_root_path + f"image_2/0000{IMG_IDX}.jpg"
 calib_path = data_root_path + "calib.txt"
 calib_json_path = data_root_path + "calib.json"
 # gt_label_path = '/home/zhur123/AutoDrive/SUSTechPOINTS/data/dataset_Mar11_1_post/label/000015.json'
@@ -68,11 +68,14 @@ def lidar_pts_to_img(orig_img, pts_velo, img_width, img_height):
     
     # pts_velo_homogeneous = np.hstack((pts_velo, np.ones((pts_velo.shape[0], 1))))
 
+    reflect = pts_velo[:, 3]
+
     # get the 4x4 transformation matrix
     transform_mat = calib['ad_transform_mat']
     
     # Lidar points in camera frame
     pts_cam_frame = transform_mat @ np.transpose(pts_velo)
+
     # remove reflective values
     pts_cam_frame = np.delete(pts_cam_frame, 3, 0)
 
@@ -81,7 +84,6 @@ def lidar_pts_to_img(orig_img, pts_velo, img_width, img_height):
     points_2d = calib['ad_projection_mat'] @ pts_cam_frame
 
     points_2d = np.transpose(points_2d)
-    dist = points_2d[:, 2]
     points_2d = points_2d[:, :2] / points_2d[:, 2:]
     
     # Scale up the points based on the image dimensions
@@ -95,13 +97,13 @@ def lidar_pts_to_img(orig_img, pts_velo, img_width, img_height):
             if x >= 0 and y >= 0 and x <= img_width and y <= img_height:
                 xs.append(int(x))
                 ys.append(int(y))
-                value.append(dist[i] * 10)
+                value.append(reflect[i])
           
 
     # show the original image with the lidar points
     plt.imshow(orig_img)
-    plt.scatter(xs, ys, s=1, c=value, cmap='autumn', alpha=0.5)
-    plt.show()
+    plt.scatter(xs, ys, s=1, c=value, cmap='hsv', alpha=0.5)
+    plt.savefig(f'results/fig_{IMG_IDX}.png', bbox_inches='tight')
     
     # # Image plane 2D to Camera frame 3D            
     # inv_projection = np.linalg.inv(np.transpose(calib['ad_projection_mat']))
